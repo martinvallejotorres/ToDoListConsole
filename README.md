@@ -22,3 +22,15 @@ Simple ToDo List application built with C# and .NET.
 
 ```bash
 dotnet run
+
+---
+
+### 3️⃣ Commit inicial
+
+```bash
+git init
+git add .
+git commit -m "Initial commit - ToDoList Console App"
+git branch -M main
+git remote add origin TU_REPO
+git push -u origin main
