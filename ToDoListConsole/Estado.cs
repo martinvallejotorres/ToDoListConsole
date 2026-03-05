@@ -4,10 +4,9 @@ using System.Text;
 
 namespace ToDoListConsole
 {
-    enum Estado
+    internal enum Estado
     {
-        Completada,
-        Pendiente,
-        Eliminada
+        Pendiente = 1,
+        Completada = 2
     }
 }

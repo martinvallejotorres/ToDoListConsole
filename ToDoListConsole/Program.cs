@@ -1,66 +1,97 @@
-﻿namespace ToDoListConsole
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ToDoListConsole
 {
     internal class Program
     {
-        
-        static int idCounter = 1;
+        static int idCounter = 0;
+
         static void Main(string[] args)
         {
-            List<Tarea> tareas = new List<Tarea>();
-
-
-            string descripcion = "Empty";
-            int buscarID = 0;
-            bool salir = false;
-
-            while (!salir)
+            static void Main(string[] args)
             {
-                MenuPrincipal();
-                string opcion = Console.ReadLine();
-                switch (opcion)
+                var storage = new TareaStorageJson("tareas.json");
+                List<Tarea> tareas = storage.Cargar();
+
+                // Setear el idCounter para no repetir IDs
+                idCounter = (tareas.Count == 0) ? 0 : tareas.Max(t => t.ID) + 1;
+
+                var service = new TareaService();
+                bool salir = false;
+
+                while (!salir)
                 {
-                    case "1":
-                        Console.WriteLine("Descripcion de la tarea:");
-                        descripcion = Console.ReadLine();
-                        tareas.Add(new Tarea(idCounter, descripcion));
-                        idCounter++;
+                    Console.Clear();
+                    MenuPrincipal();
 
-                        break;
-                    case "2":
-                        Tarea buscar = new Tarea();
-                            
-                        Console.WriteLine("ID de la tarea que quieres modificar el estado:");
-                        buscarID = int.Parse(Console.ReadLine());
+                    string opcion = Console.ReadLine();
+                    Console.Clear();
 
-                        buscar.ModificarEStado(buscarID, tareas);
+                    switch (opcion)
+                    {
+                        case "1":
+                            Console.Write("Descripción de la tarea: ");
+                            string descripcion = Console.ReadLine();
 
-                        break;
+                            if (string.IsNullOrWhiteSpace(descripcion))
+                            {
+                                Console.WriteLine("La descripción no puede estar vacía.");
+                                Console.ReadKey();
+                                break;
+                            }
 
-                    case "3":
+                            service.Agregar(tareas, idCounter, descripcion.Trim());
+                            idCounter++;
+                            storage.Guardar(tareas);
+                            Console.ReadKey();
+                            break;
 
+                        case "2":
+                            Console.Write("ID de la tarea que quieres modificar el estado: ");
+                            if (!int.TryParse(Console.ReadLine(), out int idModificar))
+                            {
+                                Console.WriteLine("ID inválido.");
+                                Console.ReadKey();
+                                break;
+                            }
 
-                       
+                            service.ModificarEstado(tareas, idModificar);
+                            storage.Guardar(tareas);
+                            Console.ReadKey();
+                            break;
 
+                        case "3":
+                            Console.Write("ID de la tarea que quieres eliminar: ");
+                            if (!int.TryParse(Console.ReadLine(), out int idEliminar))
+                            {
+                                Console.WriteLine("ID inválido.");
+                                Console.ReadKey();
+                                break;
+                            }
 
-                        break;
-                    case "4":
+                            service.Eliminar(tareas, idEliminar);
+                            storage.Guardar(tareas);
+                            Console.ReadKey();
+                            break;
 
-                        Tarea verTarea = new Tarea();
+                        case "4":
+                            service.Mostrar(tareas);
+                            Console.ReadKey();
+                            break;
 
-                        verTarea.MostrarTarea(tareas);
+                        case "5":
+                            salir = true;
+                            break;
 
-                        break;
-                    case "5":
-                        salir = true;
-                        break;
-                    default:
-                        Console.WriteLine("Opción no válida. Intente nuevamente.");
-                        break;
+                        default:
+                            Console.WriteLine("Opción no válida. Intente nuevamente.");
+                            Console.ReadKey();
+                            break;
+                    }
                 }
             }
-
-
-
         }
 
         private static void MenuPrincipal()
@@ -73,8 +104,5 @@
             Console.WriteLine("5. Salir");
             Console.Write("Seleccione una opción: ");
         }
-
-
-
     }
 }
